@@ -1,0 +1,33 @@
+name: container-scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+# Least privilege: this job only needs to read the repository.
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Build and scan image
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t banking-api:${{ github.sha }} .
+
+      - name: Scan image with Trivy
+        # TODO: confirm the latest release on the action's Releases page,
+        # then pin to a full commit SHA with the version in a comment.
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: banking-api:${{ github.sha }}
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
