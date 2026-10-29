@@ -6,7 +6,7 @@ on:
       - main
   pull_request:
 
-# Least privilege: this job only needs to read the repository.
+# Least privilege: this job only reads the repository.
 permissions:
   contents: read
 
