@@ -9,7 +9,7 @@ A small DevSecOps project that builds a Flask API container image, scans it for 
 - [x] Baseline image built from an unmodified Dockerfile
 - [x] Baseline scanned locally and documented ([`docs/baseline-scan.txt`](docs/baseline-scan.txt))
 - [x] GitHub Actions workflow that builds the image and scans it with Trivy
-- [ ] Harden the Dockerfile and push (first run is expected to fail, the hardened run should pass)
+- [x] Harden the Dockerfile and push (first run is expected to fail, the hardened run should pass)
 - [ ] Re-scan and record the after-results in this README
 - [ ] Add a `.dockerignore`, then pin the action to a commit SHA
 
