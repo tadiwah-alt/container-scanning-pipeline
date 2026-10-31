@@ -15,7 +15,7 @@ A small DevSecOps project that builds a Flask API container image, scans it for 
 
 ## The app under test
 
-The Dockerfile, `requirements.txt`, and `app/` folder are copied from my [cloud-banking-api](https://github.com/tadiwah-alt/cloud-banking-api) project (Flask, Flask-CORS, psycopg2-binary). I copied only what the image build needs. The database and front end are not part of the scan.
+The Dockerfile, `requirements.txt`, and `app/` folder are copied from my [cloud-banking-api](https://github.com/tadiwah-alt/cloud-banking-api) project (Flask, Flask-CORS, psycopg2-binary). I copied only what the image build needs. The database and frontend are not part of the scan.
 
 ## Baseline results
 
