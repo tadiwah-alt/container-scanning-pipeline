@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11.17-slim
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --upgrade --no-cache-dir setuptools wheel 
+RUN pip install --upgrade --no-cache-dir setuptools wheel
 
 RUN useradd --create-home appuser
 
