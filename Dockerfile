@@ -8,6 +8,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install --upgrade --no-cache-dir setuptools wheel 
 
+RUN useradd --create-home appuser
+
+USER appuser
+
 COPY . .
 
 EXPOSE 5000
