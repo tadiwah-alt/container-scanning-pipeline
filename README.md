@@ -93,7 +93,7 @@ docker run --rm banking-api:check pip freeze
 
 - Most findings in the baseline image came from the operating system packages in the base image, not from my own dependencies.
 - The two fixable Python findings were not in my requirements. They were copies bundled inside `setuptools`, which shipped with the base image. Upgrading `setuptools` replaced them.
-- Scanner totals overcount: one vulnerable source package can show up as many rows.
+- Scanner totals inflated count: one vulnerable source package can show up as many rows.
 - `--ignore-unfixed` changes what a gate can enforce, so the policy needs a deliberate decision.
 - Trivy checks packages for known CVEs. It cannot see configuration problems like running as root, which is what a tool like Checkov is for. Different tools answer different questions.
 - `.gitignore` does not apply to Docker builds. A separate `.dockerignore` is needed.
