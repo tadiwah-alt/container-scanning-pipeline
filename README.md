@@ -16,8 +16,8 @@ A small DevSecOps project that builds a Flask API container image, scans it for 
 - [x] Base image pinned to an exact version tag
 - [x] A newer vulnerability database found 4 fixable OS findings; fixed with `apt-get upgrade` (local scan: 0 fixable)
 - [x] After-hardening scan saved ([`docs/after-scan.txt`](docs/after-scan.txt))
-- [ ] Confirm the CI run is green after the `apt-get upgrade` change
-- [ ] Pin the trivy-action to a commit SHA
+- [x] Confirm the CI run is green after the `apt-get upgrade` change
+- [x] Pin the trivy-action to a commit SHA
 
 ## The app under test
 
