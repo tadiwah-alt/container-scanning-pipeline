@@ -8,7 +8,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install --upgrade --no-cache-dir setuptools wheel
 
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
+
 RUN useradd --create-home appuser
+
 
 USER appuser
 
