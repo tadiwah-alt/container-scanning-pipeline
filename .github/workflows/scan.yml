@@ -24,7 +24,7 @@ jobs:
       - name: Scan image with Trivy
         # TODO: confirm the latest release on the action's Releases page,
         # then pin to a full commit SHA with the version in a comment.
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses:: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: banking-api:${{ github.sha }}
           format: table
