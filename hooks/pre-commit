@@ -1,0 +1,7 @@
+#!/bin/sh
+repo_root=$(git rev-parse --show-toplevel)
+
+if ! docker run --rm -v "$repo_root:/repo:ro" zricethezav/gitleaks:latest git --staged --redact -v /repo; then
+  echo "Commit blocked: gitleaks found a secret, or the scan could not run."
+  exit 1
+fi
