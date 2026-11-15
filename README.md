@@ -134,3 +134,65 @@ container-scanning-pipeline/
 ├── requirements.txt             # every package pinned
 └── README.md
 ```
+## Secrets scanning (pre-commit hook + CI)
+
+A committed secret stays in git history after the file is edited, so anyone with a clone or a fork still has it. The only real fix for a leaked key is to rotate it. This section adds two layers that try to stop a secret before it reaches GitHub, using [gitleaks](https://github.com/gitleaks/gitleaks).
+
+### How it works
+
+| Layer | Where it runs | What it does | Weakness it covers |
+|---|---|---|---|
+| Pre-commit hook (`hooks/pre-commit`) | My machine, before each commit | Scans only the staged changes and blocks the commit if a secret is found. If the scanner cannot run (Docker down), the commit is also blocked ("fail closed"). | Catches a secret before it is ever committed, let alone pushed. |
+| CI job (`.github/workflows/secrets-scan.yml`) | GitHub Actions, on every push and pull request | Scans the full git history (`fetch-depth: 0`) and fails the run if a secret is found. | Covers a skipped or missing local hook (`git commit --no-verify`, a fresh clone). |
+
+Supply-chain choices, using the same reasoning as the Trivy pipeline:
+- `actions/checkout` pinned to a full commit SHA (v4.4.0) in both workflows, not the moving `v4` tag.
+- The gitleaks image pinned by digest, not `latest`. Trade-off: I update the digest by hand when I want a newer gitleaks.
+- `permissions: contents: read`, so the job can only read the repo.
+- `--redact` on every scan, so a real secret is never printed to a terminal or a log.
+- The scanner mounts the repo read-only (`:ro`).
+
+### Enable the hook after cloning
+
+```bash
+git config core.hooksPath hooks
+```
+
+Git does not copy this setting on clone, so each clone has to run it once. CI is the backstop for anyone who forgets.
+
+### Evidence
+
+| Test | Result |
+|---|---|
+| Full-history scan of this repo before any changes | 22 commits, no leaks |
+| Same scan across my other local repos | 7 more folders checked, no leaks (one had no git history, so its files were scanned directly) |
+| Staged scan with a random fake token (`ghp_` plus 36 random characters, not a real token) | `github-pat` finding, exit code 1 |
+| Commit with the fake token staged | Blocked by the hook, no commit created |
+| Commit with only a harmless file staged | Passed |
+| Push of the fake token with `--no-verify` to a test branch | CI run failed (red) with a `github-pat` finding |
+| Push to `main` with no secret | CI run passed (green), 24 commits scanned (full history) |
+
+Screenshots: `docs/secrets-scan-red-green.png` (red run on the test branch, green runs on `main`) and `docs/secrets-scan-finding.png` (the redacted finding in the CI log). The test branch was deleted afterwards.
+
+### Problems I hit and what they taught me
+
+| Problem | Cause | Lesson |
+|---|---|---|
+| The first CI design would have scanned one commit | `actions/checkout` fetches only the latest commit by default | Set `fetch-depth: 0` so the scan sees full history. The log showed 24 commits scanned. |
+| `actions/checkout` was `@v4` in both workflows | Tags can be moved; I had pinned the Trivy action but not this one | Pin every third-party action to a commit SHA and note the version in a comment. |
+| One of my repos was rooted in my home folder, with no `.gitignore` | A `git add .` from there could have staged `~/.aws` and `~/.ssh` | Check where a repo actually starts (`git rev-parse --show-toplevel`). I moved it into its own folder. |
+| An early scan reported "1 commit" for the wrong folder | I ran it from the wrong directory | A clean result only means something if I know which repo it scanned. Check the commit count. |
+| Docker Hub pulls timed out | Slow connection (same as the Trivy database download) | Retry the pull on its own before debugging anything else. |
+
+### Limits
+
+- Gitleaks matches known patterns. "No leaks found" means no match against those patterns, not proof that nothing sensitive is committed.
+- The hook can be skipped with `--no-verify`, and a new clone needs the one-time `core.hooksPath` setting. CI is the backstop, but it runs after the push, so the secret is already on GitHub when it fails.
+- GitHub's own push protection did not block my random fake token, so I have not tested it here.
+- If a real secret ever leaks, the response is to **revoke and rotate it**, then clean history. Deleting the file is not enough.
+
+### Planned
+
+- Branch protection that requires the secrets-scan check before merging.
+- A scheduled scan, so rule updates are applied to old history.
+- A `.gitleaks.toml` with a custom rule and an allowlist for known-safe test values.
