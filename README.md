@@ -134,6 +134,7 @@ container-scanning-pipeline/
 ├── requirements.txt             # every package pinned
 └── README.md
 ```
+
 ## Secrets scanning (pre-commit hook + CI)
 
 A committed secret stays in git history after the file is edited, so anyone with a clone or a fork still has it. The only real fix for a leaked key is to rotate it. This section adds two layers that try to stop a secret before it reaches GitHub, using [gitleaks](https://github.com/gitleaks/gitleaks).
